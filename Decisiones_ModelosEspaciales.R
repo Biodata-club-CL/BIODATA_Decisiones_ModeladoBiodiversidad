@@ -6,7 +6,7 @@
 ##
 ##  Instituto de Biodiversidad de Ecosistemas Antárticos y Subantárticos (BASE)
 ##
-## 06.06.2025
+##         2025
 ################################
 
 #######################
@@ -68,7 +68,7 @@ version #para conocer la versión de R. Esto resulta importante para el uso de p
 
 # Lista de paquetes
 #    terra y raster son semajantes, hoy en día se supone que terra es más usado y evita errores
-packages <- c("terra")
+packages <- c("terra", "enmSdmX", "sp", "gstat")
 
 # Install & Load. Llamar en librería si están instalados, y sino instalarlos
 if (!requireNamespace("pacman", quietly = TRUE)) install.packages("pacman")
@@ -306,16 +306,17 @@ dev.off()
 ### Otro ejemplo para entender cómo sucede cuando cuando la extensión es diferente  e interpolar los datos (a veces es mejor usar herramientas geoespaciales como ArcGIS o QGIS)
 library(terra)
 library(gstat)
+library(enmSdmX)
 library(sp)
 
 # Crear raster original con valores aleatorios
-r <- rast(nrows=10, ncols=10, xmin=0, xmax=10, ymin=0, ymax=10)
+r <- terra::rast(nrows=10, ncols=10, xmin=0, xmax=10, ymin=0, ymax=10)
 values(r) <- runif(ncell(r), 1, 100)
 plot(r, main="Raster original")
 
 # Convertir raster a puntos (SpatialPointsDataFrame) para gstat
 pts <- as.points(r)
-pts_sp <- as(pts, "Spatial")
+pts_sp <- spatVectorToSpatial(pts)
 names(pts_sp@data) <- "value"
 
 # Crear raster destino (grilla fina donde queremos interpolar)
@@ -323,7 +324,7 @@ r_target <- rast(nrows=100, ncols=100, xmin=0, xmax=10, ymin=0, ymax=10)
 
 # Crear puntos de destino para la predicción (SpatialPointsDataFrame)
 grid <- as.points(r_target)
-grid_sp <- as(grid, "Spatial")
+grid_sp <- spatVectorToSpatial(grid)
 
 # Ejecutar interpolación IDW con gstat
 idw_result <- gstat::idw(value ~ 1, locations = pts_sp, newdata = grid_sp, idp = 2)
@@ -336,7 +337,6 @@ values(r_target) <- interpolated_values
 
 # Ahora r_target es el raster interpolado
 plot(r_target, main = "Interpolación IDW")
-
  
 
  
