@@ -97,7 +97,7 @@ if(getwd() != path_raster_data) { setwd(path_raster_data) }
 ## Tener en cuenta que a veces los rasters desde bases de datos se descargan como archivo ".nc" (Network Common Data Form)
 ## Podés ver cómo convertirlos a "TIFF" en https://github.com/Cam-in/nc-to-tiff
 
-tiff_paths <- list.files(path = path_raster_data, pattern = "\\.tiff$", full.names = TRUE) #revisar extensión ".tif" o ".tiff" según casos.
+tiff_paths <- list.files(path = path_raster_data, pattern = "\\.tif(f)?$", full.names = TRUE) #revisar extensión ".tif" o ".tiff" según casos.
 length(tiff_paths)
 
 #######################
@@ -144,7 +144,7 @@ for (i in seq_along(tiff_raster)) {
 all_raster <- terra::rast(tiff_raster) # la función rast es para decir que es un raster o un stack de raster. El paquete raster usa la función stack
 
 ## 4.b Creamos un data frame vacío para guardar los metadatos de los raster de interés.
-ref_raster <- tiff_raster[[1]] #indicamos el raster referente
+ref_raster <- tiff_raster[[1]] #indicamos el raster referente a "bathymetry" de BioOracle
 all_raster <- rast(ref_raster) #agregamos el primer objeto para el stack
 
 raster_meta_df <- data.frame(
@@ -241,7 +241,7 @@ for (i in 2:length(tiff_raster)) {
 # 4.d Creación final del raster stack   
 all_raster <- rast(tiff_raster)
 print(all_raster)
-plot(all_raster)
+plot(all_raster) ## Acá como resultado se ven que los plot fueron extendidos (vacío porque no hay información) pero coincidiendo con la extensión de Bathymetry de BioOracle y cambio de resolución
 
 
 ############################
@@ -323,7 +323,7 @@ names(pts_sp@data) <- "value"
 r_target <- rast(nrows=100, ncols=100, xmin=0, xmax=10, ymin=0, ymax=10)
 
 # Crear puntos de destino para la predicción (SpatialPointsDataFrame)
-grid <- as.points(r_target)
+grid <- as.points(r_target) # da error porque son datos vacíos
 grid_sp <- spatVectorToSpatial(grid)
 
 # Ejecutar interpolación IDW con gstat
@@ -340,3 +340,4 @@ plot(r_target, main = "Interpolación IDW")
  
 
  
+
